@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/data/jaxb">
+<head>
+    <title>Province List</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link type="text/css" rel="stylesheet"  th:href="@{/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class="col-3"></div>
+<div class="container col-6">
+    <h1>Manage Province</h1>
+    <table class="table table-active">
+        <tr>
+            <th>ProvinceID</th>
+            <th>ProvinceName</th>
+            <th>Region</th>
+            <th>Actions</th>
+        </tr>
+        <tr th:each="province : ${province}">
+            <td th:text="${province.provinceId}"></td>
+            <td th:text="${province.provinceName}"></td>
+            <td th:text="${province.region}"></td>
+            <td>
+                <a th:href="@{/edit?provinceId={provinceId}(provinceId=${province.provinceId})}" class="btn btn-primary">Edit</a>
+                <a th:href="@{/delete?provinceId={provinceId}(provinceId=${province.provinceId})}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+    </table>
+    <a href="/add" class="btn btn-success">Add Province</a>
+</div>
+</body>
+</html>
