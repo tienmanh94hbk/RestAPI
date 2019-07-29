@@ -2,50 +2,55 @@ package com.example.provincecrud.controller;
 
 import com.example.provincecrud.entity.Province;
 import com.example.provincecrud.service.ProvinceService;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
-@Controller
+
+@RestController
 public class ProvinceController {
     @Autowired private ProvinceService provinceService;
 
     @RequestMapping("/")
-    public String index(Model model){
+    public String showProvinces(){
         List<Province> provinces = provinceService.getAllProvince();
-
-        model.addAttribute("province", provinces);
-        return "index";
+        Gson gson = new Gson();
+        return gson.toJson(provinces);
     }
 
-    @RequestMapping(value = "add")
-    public String addProvince(Model model){
-        model.addAttribute("province",new Province());
-        return "addProvince";
+    @RequestMapping(value = "add",method = RequestMethod.POST)
+    public Province addProvince(@Valid @RequestBody Province province){
+        return provinceService.saveProvince(province);
     }
 
-    @RequestMapping(value = "/edit",method = RequestMethod.GET)
-    public String editProvince(@RequestParam("provinceId") Integer provinceId, Model model){
-        Optional<Province> provinceEdit = provinceService.findProvinceById(provinceId);
-        model.addAttribute("province", provinceEdit.get());
-        return "editProvince";
+    @RequestMapping(value = "/edit/{provinceId}",method = RequestMethod.PUT)
+    public ResponseEntity<Province> updateProvince(
+            @PathVariable(value = "provinceId") Integer provinceId, @RequestBody Province provinceDetails)
+            throws ResourceNotFoundException{
+        Province province = provinceService.findProvinceById(provinceId).orElseThrow(()-> new ResourceNotFoundException("Province not found on :: "+ provinceId));
+        province.setProvinceName(provinceDetails.getProvinceName());
+        province.setRegion(provinceDetails.getRegion());
+        final Province updateProvince = provinceService.saveProvince(province);
+        return ResponseEntity.ok(updateProvince);
     }
 
     @RequestMapping(value = "save", method = RequestMethod.POST)
-    public String save(Province province){
-        provinceService.saveProvince(province);
-        return "redirect:/";
+    public Province save(Province province){
+        return provinceService.saveProvince(province);
     }
 
-    @RequestMapping(value = "/delete",method = RequestMethod.GET)
-    public String deleteProvince(@RequestParam("provinceId") Integer provinceId,Model model){
+    @RequestMapping(value = "/delete/{provinceId}",method = RequestMethod.DELETE)
+    public Map<String, Boolean> deleteProvince(@PathVariable(value = "provinceId")Integer provinceId){
+        provinceService.findProvinceById(provinceId).orElseThrow(()-> new ResourceNotFoundException("Province not found :: "+provinceId));
         provinceService.deleteProvince(provinceId);
-        return "redirect:/";
+        Map<String,Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
     }
 }
