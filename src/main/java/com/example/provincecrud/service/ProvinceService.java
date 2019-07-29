@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface ProvinceService {
     List<Province> getAllProvince();
 
-    void saveProvince(Province province);
+    Province saveProvince(Province province);
 
     void deleteProvince(Integer ProvinceId);
 

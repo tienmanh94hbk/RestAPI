@@ -19,8 +19,9 @@ public class ProvinceServiceImpl implements ProvinceService {
     }
 
     @Override
-    public void saveProvince(Province user) {
+    public Province saveProvince(Province user) {
         provinceRepository.save(user);
+        return user;
     }
 
     @Override
